@@ -1,22 +1,9 @@
 import requests
 import pandas as pd
-import json
 import chardet
 from bs4 import BeautifulSoup
 
-'''
-#외부 api 활용 데이터 수집
-authKey = '7bef445c204d9255afcb7573fee0163da90a38fa08908431672ea07f73ae3a4d'
-
-url = "http://data4library.kr/api/loanItemSrch?authKey={}&startDt=2022-01-01&endDt=2023-01-01&from_age=20&to_age=39".format(authKey)
-
-res = requests.get(url)
-
-print(res)
-print(res.json())
-# print(json.loads(res.text))
-'''
-
+#web crawling for get price & pages
 with open("2.28도서관 장서 대출목록 (2022년 12월) (1).csv",mode="rb") as f:
     d = f.readline()
 
@@ -44,7 +31,7 @@ def getBookScrapData(data_row):
         print('진행된 데이터 수 : {} / {}'.format(complete_cnt,total_data_size))
 
         if tag_data is None:
-            return pd.Series([None,None])
+            return pd.Series([None,None],index=(['가격','쪽수']))
         else:
             book_detail_url = tag_data["href"]
             request_cnt += 1
@@ -53,7 +40,7 @@ def getBookScrapData(data_row):
             detail_price_soup = BeautifulSoup(yes24_detail_res.text, 'html.parser')
             detail_price_tag_data = detail_price_soup.find('em', attrs={'class':'yes_m'})
 
-            price = int(detail_price_tag_data.contents[0].text.rstrip('원').replace(',',''))
+            price = detail_price_tag_data.contents[0].text.rstrip('원').replace(',','')
 
             detail_page_soup = BeautifulSoup(yes24_detail_res.text, 'html.parser')
             detail_page_div_tag_data = detail_page_soup.find('div', attrs={'id':'infoset_specific'})
@@ -61,19 +48,17 @@ def getBookScrapData(data_row):
 
             for tr in detail_page_tr_tag_list:
                 if tr.find('th').get_text() == '쪽수, 무게, 크기':
-                    return pd.Series([price, tr.find('td').get_text().split()[0]])
+                    pages = tr.find('td').get_text().split()[0].rstrip('쪽')
+                    return pd.Series([price, pages],index=(['가격','쪽수']))
 
-            return pd.Series([None,None])
+            return pd.Series([None,None],index=(['가격','쪽수']))
 
     except Exception:
-        return pd.Series([None,None])
+        return pd.Series([None,None],index=(['가격','쪽수']))
         # print("error : {} requests attempted".format(request_cnt))
     
 
-books_price = books_pd.apply(getBookScrapData, axis=1)
+books_price = books_pd.apply(getBookScrapData ,axis=1)
 
-books_price.to_csv("pandas_output_books_price.csv") 
+books_price.to_csv("pandas_output_books_price_pages.csv",index=False)
 
-# print(books_price)
-
-# print(books_pd.loc[0:0,:])
