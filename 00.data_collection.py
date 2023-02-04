@@ -4,10 +4,10 @@ import chardet
 from bs4 import BeautifulSoup
 
 #web crawling for get price & pages
-with open("2.28도서관 장서 대출목록 (2022년 12월) (1).csv",mode="rb") as f:
+with open("data/2.28도서관 장서 대출목록 (2022년 12월) (1).csv",mode="rb") as f:
     d = f.readline()
 
-books_pd = pd.read_csv("2.28도서관 장서 대출목록 (2022년 12월) (1).csv",encoding=chardet.detect(d).get("encoding"))
+books_pd = pd.read_csv("data/2.28도서관 장서 대출목록 (2022년 12월) (1).csv",encoding=chardet.detect(d).get("encoding"))
 
 total_data_size = books_pd['번호'].count()
 
@@ -60,5 +60,5 @@ def getBookScrapData(data_row):
 
 books_price = books_pd.apply(getBookScrapData ,axis=1)
 
-books_price.to_csv("pandas_output_books_price_pages.csv",index=False)
+books_price.to_csv("data/pandas_output_books_price_pages.csv",index=False)
 
