@@ -8,10 +8,10 @@ import numpy as np
 data = pd.read_csv("data/filtered_merged_data.csv")
 train_set, test_set = train_test_split(data)
 
-X_train = train_set[['쪽수']]
+X_train = np.column_stack((train_set[['쪽수']]**2, train_set[['쪽수']]))
 y_train = train_set['가격']
 
-X_test = test_set[['쪽수']]
+X_test = np.column_stack((test_set[['쪽수']]**2, test_set[['쪽수']]))
 y_test = test_set['가격']
 
 lr = LinearRegression()
@@ -27,7 +27,7 @@ print("fit mean absolute err : ",res) # 평균 약 3500원의 차이가 있다.
 # res_data = [(i,j) for i,j in zip(X_test['쪽수'],y_pred)]
 # print(res_data) # (책의 페이지수, 머신러닝 linearRegrassion 결과로 도출한 책의 가격) 을 튜플 list 로 print 
 
-y_selected_pred = lr.predict(pd.DataFrame(np.array([[1],[10],[100],[1000]]), columns=['쪽수'])) #1,10,100,1000 페이지의 책의 가격을 예측
+y_selected_pred = lr.predict(np.array([[1**2,1],[10**2,10],[100**2,100],[1000**2,1000]])) #1,10,100,1000 페이지의 책의 가격을 예측
 print("predicted price of 1,10,100,1000 pages book (KRW) => ",y_selected_pred) #결과.
 
 '''
@@ -47,7 +47,7 @@ x= np.linspace(0,1000)
 ax = fig.subplots()
 
 ax.scatter(data["쪽수"],data["가격"],s=2,label="data")
-ax.plot(x, lr.coef_*x + lr.intercept_, c='orange', label="predicted")
+ax.plot(x, lr.coef_[0]*(x**2) + lr.coef_[1]*x + lr.intercept_, c='orange', label="predicted")
 
 ax.set_xlabel("$pages$")
 ax.set_ylabel("$price(KRW)$")
