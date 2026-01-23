@@ -186,4 +186,4 @@ jupyter notebook dl_nlp_exercise.ipynb
 
 ## 👤 작성자
 
-데이터 분석 및 머신러닝 학습 프로젝트
+Jun Kwon
